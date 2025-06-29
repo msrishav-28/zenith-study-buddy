@@ -1,5 +1,3 @@
-### `backend/app/services/omnidim/voice_session.py`
-```python
 from typing import Dict, Optional, Any
 import asyncio
 import uuid
