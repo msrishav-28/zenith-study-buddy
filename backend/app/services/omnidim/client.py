@@ -1,138 +1,104 @@
-import httpx
+from typing import Dict, Optional, Any
 import asyncio
-import websockets
-import json
-from typing import Dict, Optional, AsyncGenerator, Any
-from app.config import settings
+import uuid
+from datetime import datetime
+
+from app.services.omnidim.client import OmnidimClient
+from app.models.voice_interaction import VoiceInteraction
+from app.models.learning_session import LearningSession, SessionType, SessionStatus
+from app.database import SessionLocal
 import logging
 
 logger = logging.getLogger(__name__)
 
-class OmnidimClient:
-    """Main client for Omnidim.io Voice AI Platform"""
+class VoiceSessionManager:
+    """Manages voice learning sessions with Omnidim"""
     
     def __init__(self):
-        self.api_key = settings.OMNIDIM_API_KEY
-        self.base_url = settings.OMNIDIM_API_URL
-        self.ws_url = settings.OMNIDIM_WS_URL
-        self.headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
+        self.client = OmnidimClient()
+        self.active_sessions: Dict[str, Dict] = {}
+    
+    async def create_tutor_session(
+        self,
+        user_id: int,
+        subject: str,
+        difficulty: str,
+        learning_style: str
+    ) -> Dict[str, Any]:
+        """Create an AI tutor voice session"""
+        
+        session_config = {
+            "mode": "tutor",
+            "user_id": str(user_id),
+            "context": {
+                "subject": subject,
+                "difficulty": difficulty,
+                "learning_style": learning_style,
+                "personality": self._get_tutor_personality(subject, learning_style)
+            },
+            "features": [
+                "real_time_transcription",
+                "emotion_detection",
+                "adaptive_responses",
+                "pronunciation_feedback",
+                "interrupt_handling"
+            ],
+            "voice_id": self._select_voice_for_subject(subject),
+            "language": "en-US"
         }
-        self._client = httpx.AsyncClient(headers=self.headers, timeout=30.0)
-    
-    async def create_voice_session(
-        self,
-        session_config: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """Create a new voice session with Omnidim"""
+        
+        # Create session with Omnidim
+        omnidim_session = await self.client.create_voice_session(session_config)
+        
+        # Store session in database
+        db = SessionLocal()
         try:
-            response = await self._client.post(
-                f"{self.base_url}/sessions/create",
-                json=session_config
+            db_session = LearningSession(
+                id=str(uuid.uuid4()),
+                user_id=user_id,
+                omnidim_session_id=omnidim_session["session_id"],
+                type=SessionType.TUTOR,
+                subject=subject,
+                difficulty=difficulty,
+                config=session_config
             )
-            response.raise_for_status()
-            return response.json()
-        except httpx.HTTPError as e:
-            logger.error(f"Failed to create voice session: {e}")
-            raise
-    
-    async def connect_voice_stream(
-        self,
-        session_id: str,
-        on_message_callback: callable
-    ):
-        """Connect to Omnidim WebSocket for real-time voice streaming"""
-        ws_uri = f"{self.ws_url}/stream/{session_id}?api_key={self.api_key}"
+            db.add(db_session)
+            db.commit()
+            
+            # Track active session
+            self.active_sessions[omnidim_session["session_id"]] = {
+                "user_id": user_id,
+                "db_session_id": db_session.id,
+                "started_at": datetime.utcnow()
+            }
+        finally:
+            db.close()
         
-        async with websockets.connect(ws_uri) as websocket:
-            logger.info(f"Connected to Omnidim voice stream: {session_id}")
-            
-            # Send initial configuration
-            await websocket.send(json.dumps({
-                "type": "init",
-                "session_id": session_id
-            }))
-            
-            # Handle incoming messages
-            async for message in websocket:
-                try:
-                    data = json.loads(message)
-                    await on_message_callback(data)
-                except json.JSONDecodeError:
-                    # Handle binary audio data
-                    await on_message_callback({
-                        "type": "audio",
-                        "data": message
-                    })
+        return {
+            "session_id": omnidim_session["session_id"],
+            "ws_endpoint": f"/api/ws/voice/{omnidim_session['session_id']}",
+            "voice_config": {
+                "voice_id": session_config["voice_id"],
+                "personality": session_config["context"]["personality"]
+            }
+        }
     
-    async def analyze_speech(
+    async def create_language_practice_session(
         self,
-        audio_data: bytes,
-        analysis_type: str = "full"
+        user_id: int,
+        target_language: str,
+        native_language: str,
+        scenario: str,
+        proficiency: str
     ) -> Dict[str, Any]:
-        """Analyze speech for pronunciation, emotion, etc."""
-        files = {"audio": ("audio.webm", audio_data, "audio/webm")}
-        data = {"analysis_type": analysis_type}
+        """Create a language practice session"""
         
-        response = await self._client.post(
-            f"{self.base_url}/analyze/speech",
-            files=files,
-            data=data
-        )
-        response.raise_for_status()
-        return response.json()
-    
-    async def get_voice_models(self, language: Optional[str] = None) -> list# LearnFlow AI - Complete Project Files
-
-## Root Directory Files
-
-### `docker-compose.yml`
-```yaml
-version: '3.8'
-
-services:
-  postgres:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: learnflow
-      POSTGRES_PASSWORD: learnflow123
-      POSTGRES_DB: learnflow
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-
-  backend:
-    build: ./backend
-    ports:
-      - "8000:8000"
-    environment:
-      DATABASE_URL: postgresql://learnflow:learnflow123@postgres:5432/learnflow
-      REDIS_URL: redis://redis:6379
-      OMNIDIM_API_KEY: ${OMNIDIM_API_KEY}
-      SECRET_KEY: ${SECRET_KEY}
-    depends_on:
-      - postgres
-      - redis
-    volumes:
-      - ./backend/app:/app/app
-
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:3000"
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000
-      NEXT_PUBLIC_WS_URL: ws://localhost:8000
-      NEXT_PUBLIC_OMNIDIM_WS_URL: ${NEXT_PUBLIC_OMNIDIM_WS_URL}
-    depends_on:
-      - backend
-
-volumes:
-  postgres_data:
+        session_config = {
+            "mode": "language_practice",
+            "user_id": str(user_id),
+            "context": {
+                "target_language": target_language,
+                "native_language": native_language,
+                "scenario": scenario,
+                "proficiency": proficiency,
+                "correction_style": "supportive"
