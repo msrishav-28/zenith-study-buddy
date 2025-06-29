@@ -11,4 +11,17 @@ router = APIRouter()
 session_manager = VoiceSessionManager()
 
 @router.post("/start", response_model=VoiceSessionResponse)
-async def start_tutor_
+async def start_tutor_session(
+    session_data: VoiceSessionCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    try:
+        session = session_manager.start_session(
+            db=db,
+            user=current_user,
+            session_data=session_data
+        )
+        return session
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
