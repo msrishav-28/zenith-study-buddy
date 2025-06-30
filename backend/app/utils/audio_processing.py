@@ -48,7 +48,7 @@ class AudioProcessor:
             logger.error(f"Error getting audio duration: {e}")
             return None
     
-   @staticmethod
+    @staticmethod
     def normalize_audio(audio_data: bytes) -> bytes:
         """Normalize audio volume"""
         try:
@@ -70,7 +70,16 @@ class AudioProcessor:
                     else:
                         logger.warning(f"Unsupported bit depth: {params.sampwidth}")
                         return audio_data
-                
+                    
+                    # Calculate normalization factor
+                    max_amplitude = np.max(np.abs(audio_array))
+                    if max_amplitude > 0:
+                        normalization_factor = max_val / max_amplitude * 0.95  # 95% to avoid clipping
+                    else:
+                        return audio_data
+                    
+                    # Normalize
+                    normalized = (audio_array * normalization_factor).astype(audio_array.dtype)
                     
                     # Write normalized audio
                     output_io = io.BytesIO()
@@ -81,4 +90,30 @@ class AudioProcessor:
                     return output_io.getvalue()
         except Exception as e:
             logger.error(f"Error normalizing audio: {e}")
+            return audio_data
+    
+    @staticmethod
+    def convert_to_webm(audio_data: bytes) -> bytes:
+        """Convert audio to WEBM format"""
+        try:
+            import av  # PyAV library for audio conversion
+            
+            # Input and output streams
+            input_io = io.BytesIO(audio_data)
+            output_io = io.BytesIO()
+            
+            # Convert and write to output
+            with av.open(input_io, 'r', format='wav') as input_container:
+                with av.open(output_io, 'w', format='webm') as output_container:
+                    # Copy streams
+                    for stream in input_container.streams:
+                        output_container.add_stream(template=stream)
+                    
+                    # Read and write packets
+                    for packet in input_container.demux():
+                        output_container.mux(packet)
+            
+            return output_io.getvalue()
+        except Exception as e:
+            logger.error(f"Error converting to WEBM: {e}")
             return audio_data

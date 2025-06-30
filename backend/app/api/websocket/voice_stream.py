@@ -1,4 +1,5 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
+from typing import Optional
 import logging
 
 from app.models.user import User
@@ -16,7 +17,7 @@ voice_handler = VoiceStreamHandler()
 async def voice_stream_endpoint(
     websocket: WebSocket,
     session_id: str,
-    token: str = None
+    token: Optional[str] = None
 ):
     """WebSocket endpoint for voice streaming"""
     try:

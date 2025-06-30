@@ -1,19 +1,37 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
+import { motion } from 'framer-motion'
 
-const Card = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      'rounded-lg border bg-card text-card-foreground shadow-sm',
-      className
-    )}
-    {...props}
-  />
-))
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  hover?: boolean
+  glass?: boolean
+}
+
+const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, hover = false, glass = false, ...props }, ref) => {
+    const Component: any = hover ? motion.div : 'div'
+    const hoverProps = hover
+      ? {
+          whileHover: { y: -4, scale: 1.01 },
+          transition: { type: 'spring', stiffness: 300 }
+        }
+      : {}
+
+    return (
+      <Component
+        ref={ref}
+        className={cn(
+          'rounded-xl shadow-sm transition-all duration-200',
+          glass ? 'glass' : 'bg-card border',
+          hover && 'cursor-pointer hover:shadow-lg',
+          className
+        )}
+        {...hoverProps}
+        {...props}
+      />
+    )
+  }
+)
 Card.displayName = 'Card'
 
 const CardHeader = React.forwardRef<
@@ -29,7 +47,7 @@ const CardHeader = React.forwardRef<
 CardHeader.displayName = 'CardHeader'
 
 const CardTitle = React.forwardRef<
-  HTMLParagraphElement,
+  HTMLHeadingElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => (
   <h3

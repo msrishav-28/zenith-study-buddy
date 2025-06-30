@@ -1,21 +1,20 @@
-from typing import Optional
+from typing import Optional, Tuple
 import re
 from email_validator import validate_email, EmailNotValidError
-from typing import Optional, Tuple
 
 
 class Validators:
     """Input validation utilities"""
     
     @staticmethod
-    def validate_password(password: str) -> Tuple[bool, Optional[str]]:
+    def validate_username(username: str) -> bool:
         """Validate username format"""
         # 3-20 characters, alphanumeric and underscore only
         pattern = r'^[a-zA-Z0-9_]{3,20}$'
         return bool(re.match(pattern, username))
     
     @staticmethod
-    def validate_password(password: str) -> tuple[bool, Optional[str]]:
+    def validate_password(password: str) -> Tuple[bool, Optional[str]]:
         """Validate password strength"""
         if len(password) < 8:
             return False, "Password must be at least 8 characters long"
@@ -53,8 +52,8 @@ class Validators:
     def validate_language_code(code: str) -> bool:
         """Validate language code"""
         valid_codes = [
-            "en-US", "en-GB", "es", "fr", "de", "it", "pt", 
-            "zh", "ja", "ko", "ar", "hi", "ru"
+            "en-US", "en-GB", "es-ES", "fr-FR", "de-DE", "it-IT", "pt-BR", 
+            "zh-CN", "ja-JP", "ko-KR", "ar-SA", "hi-IN", "ru-RU"
         ]
         return code in valid_codes
     
