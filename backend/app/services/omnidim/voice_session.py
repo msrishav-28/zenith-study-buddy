@@ -137,34 +137,34 @@ class VoiceSessionManager:
             "ws_endpoint": f"/api/ws/voice/{omnidim_session['session_id']}",
             "scenario_context": self._get_scenario_context(scenario, target_language)
         }
-    
-    async def create_pronunciation_practice_session(
+
+    async def create_exam_prep_session(
         self,
         user_id: int,
-        language: str,
-        focus_area: str,
-        difficulty: str
+        exam_type: str,
+        topics: List[str],
+        question_count: int
     ) -> Dict[str, Any]:
-        """Create a pronunciation practice session"""
+        """Create an exam preparation session"""
         
         session_config = {
-            "mode": "pronunciation_practice",
+            "mode": "exam_prep",
             "user_id": str(user_id),
             "context": {
-                "language": language,
-                "focus_area": focus_area,
-                "difficulty": difficulty,
-                "feedback_style": "detailed"
+                "exam_type": exam_type,
+                "topics": topics,
+                "question_count": question_count,
+                "adaptive_difficulty": True
             },
             "features": [
                 "real_time_transcription",
-                "phoneme_analysis",
-                "pronunciation_scoring",
-                "repetition_exercises",
-                "progress_tracking"
+                "answer_evaluation",
+                "hint_system",
+                "progress_tracking",
+                "time_management"
             ],
-            "voice_id": f"native_{language}_clear",
-            "language": language
+            "voice_id": "tutor_professional",
+            "language": "en-US"
         }
         
         omnidim_session = await self.client.create_voice_session(session_config)
@@ -176,8 +176,7 @@ class VoiceSessionManager:
                 id=str(uuid.uuid4()),
                 user_id=user_id,
                 omnidim_session_id=omnidim_session["session_id"],
-                type=SessionType.PRONUNCIATION,
-                language=language,
+                type=SessionType.EXAM_PREP,
                 config=session_config
             )
             db.add(db_session)
@@ -188,10 +187,10 @@ class VoiceSessionManager:
         return {
             "session_id": omnidim_session["session_id"],
             "ws_endpoint": f"/api/ws/voice/{omnidim_session['session_id']}",
-            "practice_config": {
-                "focus_area": focus_area,
-                "difficulty": difficulty,
-                "exercises": self._get_pronunciation_exercises(language, focus_area)
+            "exam_config": {
+                "type": exam_type,
+                "topics": topics,
+                "questions": question_count
             }
         }
     

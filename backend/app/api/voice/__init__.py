@@ -1,3 +1,3 @@
-from app.api.learning import sessions, progress, analytics
+from app.api.voice import tutor, language_practice, exam_prep, pronunciation
 
-__all__ = ["sessions", "progress", "analytics"]
+__all__ = ["tutor", "language_practice", "exam_prep", "pronunciation"]

@@ -190,7 +190,13 @@ class LearningInsightsService:
                 }
             
             daily_stats[day]["sessions"] += 1
-            daily_stats[day]["total_time"] += session.duration_seconds    async def get_voice_models(self, language: Optional[str] = None) -> list:
+            daily_stats[day]["total_time"] += session.duration_seconds
+            if session.comprehension_score:
+                daily_stats[day]["scores"].append(session.comprehension_score)
+        
+        return list(daily_stats.values())
+    
+    async def get_voice_models(self, language: Optional[str] = None) -> list:
         """Get available voice models"""
         params = {"language": language} if language else {}
         response = await self._client.get(

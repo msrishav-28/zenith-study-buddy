@@ -1,6 +1,7 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 import logging
 
+from app.models.user import User
 from app.core.dependencies import get_current_user_ws
 from app.services.omnidim.client import OmnidimClient
 from app.api.websocket.voice_stream_handler import VoiceStreamHandler
