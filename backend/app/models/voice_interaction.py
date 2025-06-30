@@ -34,7 +34,7 @@ class VoiceInteraction(Base):
     fluency_score = Column(Float)
     
     # Metadata
-    metadata = Column(JSON)
+    interaction_metadata = Column(JSON)
     
     # Relationships
     session = relationship("LearningSession", back_populates="voice_interactions")
