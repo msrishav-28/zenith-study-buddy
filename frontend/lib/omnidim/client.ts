@@ -59,4 +59,5 @@ class OmnidimClient {
   }
 }
 
-export default OmnidimClient
+const omnidimApiKey = process.env.NEXT_PUBLIC_OMNIDIM_API_KEY || ''
+export const omnidimClient = new OmnidimClient(omnidimApiKey)

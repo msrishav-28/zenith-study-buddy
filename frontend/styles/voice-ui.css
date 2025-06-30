@@ -1,0 +1,132 @@
+/* Voice Interface Styles */
+.voice-interface {
+  @apply relative;
+}
+
+/* Voice Button States */
+.voice-button {
+  @apply relative overflow-hidden transition-all duration-300;
+}
+
+.voice-button.recording {
+  @apply bg-red-500 hover:bg-red-600;
+}
+
+.voice-button.recording::before {
+  content: '';
+  @apply absolute inset-0 bg-white opacity-20;
+  animation: pulse-ring 1.5s ease-in-out infinite;
+}
+
+/* Voice Visualizer */
+.voice-visualizer {
+  @apply relative h-32 w-full rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800;
+}
+
+.voice-visualizer-bar {
+  @apply absolute bottom-0 bg-gradient-to-t from-purple-500 to-blue-500 transition-all duration-75;
+  width: 2px;
+  transform-origin: bottom;
+}
+
+/* Transcript Display */
+.transcript-container {
+  @apply h-96 overflow-y-auto space-y-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg;
+  scroll-behavior: smooth;
+}
+
+.transcript-message {
+  @apply flex;
+}
+
+.transcript-message.user {
+  @apply justify-end;
+}
+
+.transcript-message.ai {
+  @apply justify-start;
+}
+
+.transcript-bubble {
+  @apply max-w-[70%] rounded-lg px-4 py-2 text-sm;
+}
+
+.transcript-bubble.user {
+  @apply bg-blue-500 text-white;
+}
+
+.transcript-bubble.ai {
+  @apply bg-white dark:bg-gray-800 border;
+}
+
+/* Emotion Indicator */
+.emotion-indicator {
+  @apply flex items-center space-x-2;
+}
+
+.emotion-icon {
+  @apply w-8 h-8 transition-transform duration-300;
+}
+
+.emotion-icon.active {
+  @apply scale-110;
+}
+
+/* Audio Level Meter */
+.audio-level-meter {
+  @apply h-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden;
+}
+
+.audio-level-bar {
+  @apply h-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-100;
+}
+
+/* Voice Permission Modal */
+.voice-permission-modal {
+  @apply fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50;
+}
+
+.voice-permission-content {
+  @apply bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full;
+}
+
+/* Voice Controls */
+.voice-controls {
+  @apply flex justify-center gap-4 mt-6;
+}
+
+.voice-control-button {
+  @apply p-4 rounded-full transition-all duration-200;
+}
+
+.voice-control-button:hover {
+  @apply scale-105;
+}
+
+/* Voice Session Status */
+.voice-status {
+  @apply flex items-center gap-2 text-sm;
+}
+
+.voice-status-indicator {
+  @apply w-2 h-2 rounded-full;
+}
+
+.voice-status-indicator.connected {
+  @apply bg-green-500;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.voice-status-indicator.disconnected {
+  @apply bg-red-500;
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

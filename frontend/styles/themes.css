@@ -1,0 +1,95 @@
+/* Theme Variables */
+@layer base {
+  /* Light Theme Colors */
+  .light {
+    --color-primary: 262.1 83.3% 57.8%;
+    --color-primary-foreground: 210 20% 98%;
+    --color-secondary: 210 40% 96.1%;
+    --color-secondary-foreground: 222.2 47.4% 11.2%;
+    --color-success: 142.1 76.2% 36.3%;
+    --color-warning: 45 93% 47%;
+    --color-error: 0 84.2% 60.2%;
+    --color-info: 199 89% 48%;
+  }
+
+  /* Dark Theme Colors */
+  .dark {
+    --color-primary: 263.4 70% 50.4%;
+    --color-primary-foreground: 210 20% 98%;
+    --color-secondary: 217.2 32.6% 17.5%;
+    --color-secondary-foreground: 210 40% 98%;
+    --color-success: 142.1 70.6% 45.3%;
+    --color-warning: 48 96% 53%;
+    --color-error: 0 62.8% 30.6%;
+    --color-info: 199 89% 58%;
+  }
+}
+
+/* Theme-specific styles */
+.themed-gradient {
+  @apply bg-gradient-to-br from-purple-500 to-blue-500;
+}
+
+.dark .themed-gradient {
+  @apply bg-gradient-to-br from-purple-600 to-blue-600;
+}
+
+/* Card themes */
+.themed-card {
+  @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700;
+}
+
+/* Input themes */
+.themed-input {
+  @apply bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600;
+}
+
+/* Button themes */
+.themed-button-primary {
+  @apply bg-purple-600 hover:bg-purple-700 text-white;
+}
+
+.dark .themed-button-primary {
+  @apply bg-purple-500 hover:bg-purple-600;
+}
+
+/* Text themes */
+.themed-text-primary {
+  @apply text-gray-900 dark:text-gray-100;
+}
+
+.themed-text-secondary {
+  @apply text-gray-600 dark:text-gray-400;
+}
+
+/* Shadow themes */
+.themed-shadow {
+  @apply shadow-lg dark:shadow-2xl;
+}
+
+/* Scrollbar themes */
+.themed-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.gray.400') theme('colors.gray.100');
+}
+
+.dark .themed-scrollbar {
+  scrollbar-color: theme('colors.gray.600') theme('colors.gray.800');
+}
+
+.themed-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.themed-scrollbar::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+.themed-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 dark:bg-gray-600 rounded-full;
+}
+
+.themed-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500 dark:bg-gray-500;
+}
