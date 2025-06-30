@@ -48,29 +48,29 @@ class AudioProcessor:
             logger.error(f"Error getting audio duration: {e}")
             return None
     
-    @staticmethod
+   @staticmethod
     def normalize_audio(audio_data: bytes) -> bytes:
         """Normalize audio volume"""
         try:
             with io.BytesIO(audio_data) as input_io:
                 with wave.open(input_io, 'rb') as wav_in:
-                    # Read parameters
                     params = wav_in.getparams()
                     frames = wav_in.readframes(params.nframes)
                     
-                    # Convert to numpy array
-                    if params.sampwidth == 2:
+                    # Handle different bit depths
+                    if params.sampwidth == 1:
+                        audio_array = np.frombuffer(frames, dtype=np.uint8)
+                        max_val = 255
+                    elif params.sampwidth == 2:
                         audio_array = np.frombuffer(frames, dtype=np.int16)
+                        max_val = 32767
+                    elif params.sampwidth == 4:
+                        audio_array = np.frombuffer(frames, dtype=np.int32)
+                        max_val = 2147483647
                     else:
-                        return audio_data  # Only handle 16-bit for now
-                    
-                    # Normalize
-                    max_val = np.max(np.abs(audio_array))
-                    if max_val > 0:
-                        normalization_factor = 32767 / max_val * 0.9  # 90% of max
-                        normalized = (audio_array * normalization_factor).astype(np.int16)
-                    else:
-                        normalized = audio_array
+                        logger.warning(f"Unsupported bit depth: {params.sampwidth}")
+                        return audio_data
+                
                     
                     # Write normalized audio
                     output_io = io.BytesIO()
