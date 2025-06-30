@@ -1,12 +1,14 @@
 from typing import Optional
 import re
 from email_validator import validate_email, EmailNotValidError
+from typing import Optional, Tuple
+
 
 class Validators:
     """Input validation utilities"""
     
     @staticmethod
-    def validate_username(username: str) -> bool:
+    def validate_password(password: str) -> Tuple[bool, Optional[str]]:
         """Validate username format"""
         # 3-20 characters, alphanumeric and underscore only
         pattern = r'^[a-zA-Z0-9_]{3,20}$'
