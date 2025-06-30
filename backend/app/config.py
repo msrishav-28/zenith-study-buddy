@@ -10,18 +10,18 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     
     # Database
-    DATABASE_URL: str
+    DATABASE_URL: str = "postgresql://learnflow:learnflow123@localhost:5432/learnflow"
     
     # Redis
-    REDIS_URL: str
+    REDIS_URL: str = "redis://localhost:6379"
     
     # Security
-    SECRET_KEY: str
+    SECRET_KEY: str = "3e723a6b65044f9fa24880f6f986e36b"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # Omnidim
-    OMNIDIM_API_KEY: str
+    OMNIDIM_API_KEY: str = "kPF7HWuHOg11w14qQDUwSfxEp1mvu1tIABAV9M-OIJw"
     OMNIDIM_API_URL: str = "https://api.omnidim.io/v1"
     OMNIDIM_WS_URL: str = "wss://ws.omnidim.io"
     
