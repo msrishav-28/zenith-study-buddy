@@ -4,7 +4,7 @@ import json
 
 class Settings(BaseSettings):
     # Application
-    APP_NAME: str = "LearnFlow AI"
+    APP_NAME: str = "Zenith Study Buddy"
     APP_VERSION: str = "1.0.0"
     ENVIRONMENT: str = "development"
     DEBUG: bool = True
